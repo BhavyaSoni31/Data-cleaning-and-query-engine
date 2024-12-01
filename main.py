@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from prompts import merge_prompt, cleaning_prompt, rephrase_query_prompt, column_rename_prompt, update_query_prompt
+from prompts import merge_prompt, cleaning_prompt, column_rename_prompt, update_query_prompt
 from utils import get_agent, rephrase_query
 
 state = st.session_state
 
 if "submitted" not in state:
     state.submitted = False
-
 
 def load_csv_files(uploaded_files):
 
@@ -25,7 +24,9 @@ query_agent = get_agent(
                     dataframes=pd.DataFrame(),
                     prefix="""Assume all the dataframes are already loaded in the environment. If not found use 'updated_dataframe.csv' CSV file and load it.""",
                     suffix= """Don't print the 'df' as it would be more than your context window size.
-                                If you don't find the answer in one go, try to modeify/adjust the query based on the data and column names and try again, You should retry 3 times in that case."""
+                                If you don't find the answer in one go or get any error, try to modeify/adjust the query based on the data and column names and try again, You should retry 3 times in that case.
+                                If an answer for the query cannot be found, provide suggestions on how the user could modify their question to yield better results. 
+                                Additionally, provide some sample queries related to the original user query to help them understand the types of questions that can be addressed. """
                 )
 
 def pre_process(dataframes):
@@ -44,10 +45,6 @@ def pre_process(dataframes):
     merge_df_agent.invoke(merge_prompt)
     cleaning_agent.invoke(column_rename_prompt)
     cleaning_agent.invoke(cleaning_prompt)
-    
-    df = pd.read_csv("updated_dataframe.csv")
-    
-    return df
 
 def main():
 
@@ -68,9 +65,7 @@ def main():
                 st.dataframe(df.head())  # Display the first few rows of each dataframe
 
             if not state.submitted:
-                df = pre_process(dataframes=dataframes)
-                
-            df = df.sample(frac = 1)
+                pre_process(dataframes=dataframes)
 
             # Step 3: Query Box
             st.header("Query the Data")
@@ -78,13 +73,9 @@ def main():
                                 on_change=lambda: state.update(submitted=True))
             
             if query:
-                # Process query here. Placeholder message for now.
                 st.write("Generating response...")
                 updated_query = rephrase_query(update_query_prompt, query, current_time=datetime.now())
-                print(f"{updated_query=}")
-                rephrased_query = rephrase_query(rephrase_query_prompt, updated_query, df=df.head(n=5).to_json(orient='records', lines=True))
-                print(f"{rephrased_query=}")
-                output = query_agent.invoke(rephrased_query)
+                output = query_agent.invoke(updated_query)
                 output = output.get("output", "Try again!")
                 st.write(output)
 

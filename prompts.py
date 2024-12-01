@@ -16,7 +16,7 @@ cleaning_prompt = """
     1. **Identify and Drop Insignificant Columns**
         - Examine each column in the DataFrame and identify columns that are not useful for analysis, such as:
             - You must be cautious about dropping a column and only drop the columns with no sognificance like IDs(Identifiers or serial number).
-            - Columns with the same constant value across all rows.
+            - Columns with the same constant value or NaN values across all rows.
             - Columns with redundant or duplicate information.
 
     2. **Handle Missing Values**
@@ -76,15 +76,4 @@ input : List all the flights for 'alaska airlines' airline for last week.
 output : List all the flights for 'alaska airlines' airline starting from 2024-04-23T23:54:13 to 2024-04-30T23:54:13.
 
 Note: Here for example, we have assumed that the current time is 2024-04-30T23:54:13.
-"""
-
-
-rephrase_query_prompt = """
-    Please rephrase the input query such that an LLM can understand the context easily and provide accurate answer.
-    The query is related to the Pandas Dataframe and you will enhance the query as per the data so that the LLM can easily provide the output.
-    You would update the key words with similar column names so that the query becomes more understandable by the LLM.
-    For your reference here is the json data: {sample_df}.
-    Please make sure the your answer should only contain the rephrased query and nothing else.
-    If an answer for the query cannot be found, provide suggestions on how the user could modify their question to yield better results. 
-    Additionally, provide some sample queries related to the original user query to help them understand the types of questions that can be addressed. 
 """
