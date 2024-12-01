@@ -23,7 +23,7 @@ def get_agent(dataframes: list, prefix: str = "", suffix: str = ""):
 
     return agent
 
-def rephrase_query(prompt, query, current_time=None, df=None):
+def rephrase_query(prompt, query, current_time):
 
     llm = ChatOpenAI(
         model=LLM_MODEL,
@@ -31,7 +31,7 @@ def rephrase_query(prompt, query, current_time=None, df=None):
         api_key=API_KEY,
     )
     
-    prompt = ChatPromptTemplate.from_messages(
+    _prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
@@ -41,28 +41,13 @@ def rephrase_query(prompt, query, current_time=None, df=None):
         ]
     )
 
-    chain = prompt | llm
+    chain = _prompt | llm
     
-    if current_time:
-        output = chain.invoke(
-            {
-                "current_time": current_time,
-                "input": query,
-            }
-        ).content
-
-    if df is not None:
-        output = chain.invoke(
-            {
-                "sample_df": df,
-                "input": query,
-            }
-        ).content
+    output = chain.invoke(
+        {
+            "current_time": current_time,
+            "input": query,
+        }
+    ).content
 
     return output
-
-# query = "Number of bookings for American Airlines yesterday."
-# answer = rephrase_query(rephrase_query_prompt, query)
-# output = query_agent.invoke(answer)
-
-# print(output)
