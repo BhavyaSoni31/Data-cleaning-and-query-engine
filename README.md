@@ -8,7 +8,6 @@ This project leverages advanced Large Language Models (LLMs) and supporting fram
 - **Data Transformation**: Renames columns for better readability and ease of use in queries.
 - **Business Intelligence**: Enables easy and effective querying of the dataset.
 - **LLM Integration**: Uses OpenAI and LangChain for intelligent data manipulation.
-- **Modular Design**: Designed with reusability and scalability in mind.
 
 ## File Structure
 
